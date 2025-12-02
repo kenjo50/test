@@ -1,0 +1,21 @@
+# Haskell Stack
+.stack-work/
+*.cabal
+stack.yaml.lock
+*.hi
+*.o
+*.exe
+dist/
+dist-newstyle/
+.HTF/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
