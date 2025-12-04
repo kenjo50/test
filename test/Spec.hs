@@ -31,7 +31,7 @@ testValidateFEN = describe "validateFEN" $ do
     validateFEN "qqd1/qdp1/dpp1///1ppd/1pdq/1dqq" `shouldBe` True
 
   it "validates FEN with all pieces" $ do
-    validateFEN "qqqq/dddd/pppp////pppp/dddd/qqqq" `shouldBe` True
+    validateFEN "qqqq/dddd/pppp///pppp/dddd/qqqq" `shouldBe` True
 
   it "rejects FEN with too many rows" $ do
     validateFEN "qqqq/dddd/pppp////pppp/dddd/qqqq/pppp" `shouldBe` False
@@ -46,10 +46,10 @@ testValidateFEN = describe "validateFEN" $ do
     validateFEN "qqqqq/dddd/pppp////pppp/dddd/qqqq" `shouldBe` False
 
   it "validates FEN with numbers" $ do
-    validateFEN "q3/d3/p3////p3/d3/q3" `shouldBe` True
+    validateFEN "q3/d3/p3///p3/d3/q3" `shouldBe` True
 
   it "validates FEN with mixed numbers and pieces" $ do
-    validateFEN "q2d/1pp1/2pq////qp2/1pp1/d2q" `shouldBe` True
+    validateFEN "q2d/1pp1/2pq///qp2/1pp1/d2q" `shouldBe` True
 
 testBuildBoard :: Spec
 testBuildBoard = describe "buildBoard" $ do
@@ -57,7 +57,7 @@ testBuildBoard = describe "buildBoard" $ do
     buildBoard startingFEN `shouldBe` startingBoard
 
   it "builds board with all empty row" $ do
-    buildBoard "////" `shouldBe` [
+    buildBoard "///////" `shouldBe` [
       [Empty, Empty, Empty, Empty],
       [Empty, Empty, Empty, Empty],
       [Empty, Empty, Empty, Empty],
@@ -69,7 +69,7 @@ testBuildBoard = describe "buildBoard" $ do
       ]
 
   it "builds board with single piece" $ do
-    buildBoard "q3///////////////3q" `shouldBe` [
+    buildBoard "q3///////3q" `shouldBe` [
       [Queen, Empty, Empty, Empty],
       [Empty, Empty, Empty, Empty],
       [Empty, Empty, Empty, Empty],
@@ -81,7 +81,7 @@ testBuildBoard = describe "buildBoard" $ do
       ]
 
   it "builds board with all pieces" $ do
-    buildBoard "qqqq/dddd/pppp////pppp/dddd/qqqq" `shouldBe` [
+    buildBoard "qqqq/dddd/pppp///pppp/dddd/qqqq" `shouldBe` [
       [Queen, Queen, Queen, Queen],
       [Drone, Drone, Drone, Drone],
       [Pawn, Pawn, Pawn, Pawn],
@@ -151,7 +151,7 @@ testDroneMoves = describe "droneMoves" $ do
     droneMoves startingBoard Top (Pos 'a' 0) Nothing `shouldBe` []
 
   it "returns empty for empty cell" $ do
-    droneMoves startingBoard Bottom (Pos 'b' 0) Nothing `shouldBe` []
+    droneMoves startingBoard Bottom (Pos 'a' 0) Nothing `shouldBe` []
 
   it "returns valid moves for drone" $ do
     let board = buildBoard "///d3////////"
@@ -225,7 +225,7 @@ testPlayerWon = describe "playerWon" $ do
 
   it "bottom wins when top zone is empty" $ do
     let board = buildBoard "////////pppp/dddd/qqqq"
-    playerWon board Bottom 10 5 `shouldBe` Just Bottom
+    playerWon board Bottom 5 10 `shouldBe` Just Bottom
 
   it "top wins when bottom zone is empty" $ do
     let board = buildBoard "qqqq/dddd/pppp////////"
@@ -233,7 +233,7 @@ testPlayerWon = describe "playerWon" $ do
 
   it "player with more points wins" $ do
     let board = buildBoard "////////pppp/dddd/qqqq"
-    playerWon board Bottom 10 5 `shouldBe` Just Bottom
+    playerWon board Bottom 5 10 `shouldBe` Just Bottom
 
   it "last player wins on tie" $ do
     let board = buildBoard "////////pppp/dddd/qqqq"
