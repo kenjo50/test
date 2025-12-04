@@ -4,7 +4,7 @@
 
 import Test.Hspec
 
-import Board (validateFEN, buildBoard, buildFEN, startingFEN, startingBoard,
+import Board (validateFEN, buildBoard, buildFEN,
               Player(Top, Bottom),
               Cell(Empty, Pawn, Drone, Queen),
               Pos(Pos))
