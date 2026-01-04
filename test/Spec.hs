@@ -4,18 +4,20 @@
 
 import Test.Hspec
 
-import Board (validateFEN, buildBoard, buildFEN, startingFEN, startingBoard,
+import Board (validateFEN, buildBoard, buildFEN, buildPos, startingFEN, startingBoard,
               Player(Top, Bottom),
               Cell(Empty, Pawn, Drone, Queen),
               Pos(Pos))
 
-import Logic (Move(Move), pawnMoves, droneMoves, queenMoves, makeMove, playerWon)
+import Logic (Move(Move), buildMove, pawnMoves, droneMoves, queenMoves, makeMove, playerWon)
 
 main :: IO ()
 main = hspec $ do
   testValidateFEN
   testBuildBoard
   testBuildFEN
+  testBuildPos
+  testBuildMove
   testPawnMoves
   testDroneMoves
   testQueenMoves
@@ -121,6 +123,28 @@ testBuildFEN = describe "buildFEN" $ do
       [Queen, Queen, Queen, Queen]
       ] `shouldBe` "qqqq/dddd/pppp///pppp/dddd/qqqq"
 
+testBuildPos :: Spec
+testBuildPos = describe "buildPos" $ do
+  it "builds position from string a0" $ do
+    buildPos "a0" `shouldBe` Pos 'a' 0
+
+  it "builds position from string d7" $ do
+    buildPos "d7" `shouldBe` Pos 'd' 7
+
+  it "builds position from string b3" $ do
+    buildPos "b3" `shouldBe` Pos 'b' 3
+
+testBuildMove :: Spec
+testBuildMove = describe "buildMove" $ do
+  it "builds move from valid string" $ do
+    buildMove "a0-b1" `shouldBe` Just (Move (Pos 'a' 0) (Pos 'b' 1))
+
+  it "builds move with different positions" $ do
+    buildMove "c3-d7" `shouldBe` Just (Move (Pos 'c' 3) (Pos 'd' 7))
+
+  it "returns Nothing for empty string" $ do
+    buildMove "" `shouldBe` Nothing
+
 testPawnMoves :: Spec
 testPawnMoves = describe "pawnMoves" $ do
   it "returns empty for wrong position" $ do
@@ -128,6 +152,18 @@ testPawnMoves = describe "pawnMoves" $ do
 
   it "returns empty for empty cell" $ do
     pawnMoves startingBoard Bottom (Pos 'a' 0) Nothing `shouldBe` []
+
+  it "returns empty for wrong piece type (drone)" $ do
+    let board = buildBoard "///d3////////"
+    pawnMoves board Top (Pos 'a' 4) Nothing `shouldBe` []
+
+  it "returns empty for wrong piece type (queen)" $ do
+    let board = buildBoard "///q3////////"
+    pawnMoves board Top (Pos 'a' 4) Nothing `shouldBe` []
+
+  it "returns empty for piece belonging to wrong player" $ do
+    let board = buildBoard "//////p3////////"
+    pawnMoves board Top (Pos 'a' 1) Nothing `shouldBe` []
 
   it "returns valid moves for pawn" $ do
     let board = buildBoard "///1p2/2p1////////"
@@ -153,6 +189,18 @@ testDroneMoves = describe "droneMoves" $ do
   it "returns empty for empty cell" $ do
     droneMoves startingBoard Bottom (Pos 'a' 0) Nothing `shouldBe` []
 
+  it "returns empty for wrong piece type (pawn)" $ do
+    let board = buildBoard "///p3////////"
+    droneMoves board Top (Pos 'a' 4) Nothing `shouldBe` []
+
+  it "returns empty for wrong piece type (queen)" $ do
+    let board = buildBoard "///q3////////"
+    droneMoves board Top (Pos 'a' 4) Nothing `shouldBe` []
+
+  it "returns empty for piece belonging to wrong player" $ do
+    let board = buildBoard "//////d3////////"
+    droneMoves board Top (Pos 'a' 1) Nothing `shouldBe` []
+
   it "returns valid moves for drone" $ do
     let board = buildBoard "///d3////////"
         moves = droneMoves board Top (Pos 'a' 4) Nothing
@@ -161,6 +209,11 @@ testDroneMoves = describe "droneMoves" $ do
   it "drone movement based on piece count" $ do
     let board = buildBoard "d3/d3/d3/d3////////"
         moves = droneMoves board Top (Pos 'a' 7) Nothing
+    length moves `shouldSatisfy` (> 0)
+
+  it "drone counts pieces only in direction of movement" $ do
+    let board = buildBoard "d3///d3///2d1///"
+        moves = droneMoves board Top (Pos 'c' 1) Nothing
     length moves `shouldSatisfy` (> 0)
 
   it "filters out takeback moves" $ do
@@ -176,6 +229,18 @@ testQueenMoves = describe "queenMoves" $ do
 
   it "returns empty for empty cell" $ do
     queenMoves startingBoard Bottom (Pos 'b' 1) Nothing `shouldBe` []
+
+  it "returns empty for wrong piece type (pawn)" $ do
+    let board = buildBoard "///p3////////"
+    queenMoves board Top (Pos 'a' 4) Nothing `shouldBe` []
+
+  it "returns empty for wrong piece type (drone)" $ do
+    let board = buildBoard "///d3////////"
+    queenMoves board Top (Pos 'a' 4) Nothing `shouldBe` []
+
+  it "returns empty for piece belonging to wrong player" $ do
+    let board = buildBoard "//////q3////////"
+    queenMoves board Top (Pos 'a' 1) Nothing `shouldBe` []
 
   it "returns valid moves for queen" $ do
     let board = buildBoard "///q3////////"
