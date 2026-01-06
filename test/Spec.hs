@@ -213,7 +213,7 @@ testDroneMoves = describe "droneMoves" $ do
 
   it "drone counts pieces only in direction of movement" $ do
     let board = buildBoard "d3///d3///2d1///"
-        moves = droneMoves board Top (Pos 'c' 1) Nothing
+        moves = droneMoves board Bottom (Pos 'c' 1) Nothing
     length moves `shouldSatisfy` (> 0)
 
   it "filters out takeback moves" $ do
