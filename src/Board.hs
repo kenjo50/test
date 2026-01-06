@@ -3,8 +3,9 @@ module Board where  -- do NOT CHANGE export of module
 -- IMPORTS HERE
 -- Note: Imports allowed that DO NOT REQUIRE TO ANY CHANGES TO package.yaml, e.g.:
 --       import Data.Chars
-import Data.Char()
+import Data.Char (isDigit, digitToInt)
 import Text.Read()
+import Data.List (intercalate)
 
 -- #############################################################################
 -- ############# GIVEN IMPLEMENTATION                           ################
@@ -56,7 +57,33 @@ buildPos _ = error "Invalid position format"
 -- ##############################################################################
 
 validateFEN :: String -> Bool
-validateFEN _ = True
+validateFEN fen =
+  let rows = splitOn '/' fen
+  in length rows == 8 && all isValidRow rows
+  where
+    splitOn :: Char -> String -> [String]
+    splitOn _ "" = [""]
+    splitOn delim (x:xs)
+      | x == delim = "" : splitOn delim xs
+      | otherwise = case splitOn delim xs of
+                      (y:ys) -> (x:y):ys
+                      [] -> [[x]]
+
+    isValidRow :: String -> Bool
+    isValidRow "" = True  -- Empty rows are valid
+    isValidRow row = all isValidChar row && rowLength row == 4
+
+    isValidChar :: Char -> Bool
+    isValidChar c = c `elem` "pdq123"
+
+    rowLength :: String -> Int
+    rowLength = sum . map charValue
+
+    charValue :: Char -> Int
+    charValue c
+      | c `elem` "pdq" = 1
+      | isDigit c = digitToInt c
+      | otherwise = 0
 
 -- ##############################################################################
 -- ################## IMPLEMENT buildBoard :: String -> Board ###################
@@ -64,7 +91,28 @@ validateFEN _ = True
 -- ##############################################################################
 
 buildBoard :: String -> Board
-buildBoard _ = startingBoard
+buildBoard fen = map parseRow (splitOn '/' fen)
+  where
+    splitOn :: Char -> String -> [String]
+    splitOn _ "" = [""]
+    splitOn delim (x:xs)
+      | x == delim = "" : splitOn delim xs
+      | otherwise = case splitOn delim xs of
+                      (y:ys) -> (x:y):ys
+                      [] -> [[x]]
+
+    parseRow :: String -> [Cell]
+    parseRow "" = [Empty, Empty, Empty, Empty]
+    parseRow row = expandRow row []
+
+    expandRow :: String -> [Cell] -> [Cell]
+    expandRow "" acc = acc
+    expandRow (c:cs) acc
+      | c == 'p' = expandRow cs (acc ++ [Pawn])
+      | c == 'd' = expandRow cs (acc ++ [Drone])
+      | c == 'q' = expandRow cs (acc ++ [Queen])
+      | isDigit c = expandRow cs (acc ++ replicate (digitToInt c) Empty)
+      | otherwise = expandRow cs acc
 
 -- ##############################################################################
 -- ################## IMPLEMENT buildFEN :: Board -> String   ###################
@@ -72,4 +120,25 @@ buildBoard _ = startingBoard
 -- ##############################################################################
 
 buildFEN :: Board -> String
-buildFEN board = startingFEN
+buildFEN board = intercalate "/" (map rowToFEN board)
+  where
+    rowToFEN :: [Cell] -> String
+    rowToFEN row
+      | all (== Empty) row = ""
+      | otherwise = compressRow (map cellToChar row)
+
+    cellToChar :: Cell -> Char
+    cellToChar Pawn = 'p'
+    cellToChar Drone = 'd'
+    cellToChar Queen = 'q'
+    cellToChar Empty = '0'  -- Temporary marker for empty cells
+
+    compressRow :: String -> String
+    compressRow = compress 0
+
+    compress :: Int -> String -> String
+    compress n "" = if n > 0 then [head (show n)] else ""
+    compress n (c:cs)
+      | c == '0' = compress (n + 1) cs
+      | n > 0 = head (show n) : c : compress 0 cs
+      | otherwise = c : compress 0 cs
