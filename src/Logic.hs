@@ -26,6 +26,9 @@ buildMove s = case break (=='-') s of
 -- ########################################################################################################
 -- ################## HELPER FUNCTIONS                                                   ##################
 -- ########################################################################################################
+-- AI-GENERIERT: Die folgenden Hilfsfunktionen wurden mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
+-- ########################################################################################################
 
 -- Convert column character to index (a=0, b=1, c=2, d=3)
 colToIndex :: Char -> Int
@@ -137,6 +140,9 @@ getAllDirectionMoves board pos =
 -- ################## pawnMoves :: Board -> Player -> Pos -> Maybe Move -> [Move]        ##################
 -- ################## - 5 Functional Points                                              ##################
 -- ########################################################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
+-- ########################################################################################################
 
 pawnMoves :: Board -> Player -> Pos -> Maybe Move -> [Move]
 pawnMoves board player pos lastMove =
@@ -158,6 +164,9 @@ pawnMoves board player pos lastMove =
 -- #######################################################################################################
 -- ################## droneMoves :: Board -> Player -> Pos -> Maybe Move -> [Move]      ##################
 -- ################## - 5 Functional Points                                             ##################
+-- #######################################################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
 -- #######################################################################################################
 
 droneMoves :: Board -> Player -> Pos -> Maybe Move -> [Move]
@@ -181,6 +190,9 @@ droneMoves board player pos lastMove =
 -- ################## queenMoves :: Board -> Player -> Pos -> Maybe Move -> [Move]      ##################
 -- ################## - 3 Functional Points                                             ##################
 -- #######################################################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
+-- #######################################################################################################
 
 queenMoves :: Board -> Player -> Pos -> Maybe Move -> [Move]
 queenMoves board player pos lastMove =
@@ -202,6 +214,9 @@ queenMoves board player pos lastMove =
 -- #######################################################################################################
 -- ################## makeMove :: Board -> Move -> (Board -> Int)                       ##################
 -- ################## - 3 Functional Points                                             ##################
+-- #######################################################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
 -- #######################################################################################################
 
 makeMove :: Board -> Move -> (Board, Int)
@@ -233,6 +248,9 @@ makeMove board (Move from to) =
 -- #######################################################################################################
 -- ################## playerWon :: Board -> Player -> Int -> Int -> Maybe Player        ##################
 -- ################## - 3 Functional Points                                             ##################
+-- #######################################################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
 -- #######################################################################################################
 
 playerWon :: Board -> Player -> Int -> Int -> Maybe Player

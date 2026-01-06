@@ -1,6 +1,9 @@
 -- #############################################################################
 -- ###### TESTS                                                       ##########
 -- #############################################################################
+-- AI-GENERIERT: Alle Unit Tests in dieser Datei wurden mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt und implementiert.
+-- #############################################################################
 
 import Test.Hspec
 
