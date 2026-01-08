@@ -21,7 +21,7 @@ buildMove :: String -> Maybe Move
 buildMove "" = Nothing
 buildMove s = case break (=='-') s of
   (a, '-':b) -> Just (Move (buildPos a) (buildPos b))
-  _ -> error "Invalid move format"
+  _ -> Nothing
 
 -- ########################################################################################################
 -- ################## HELPER FUNCTIONS                                                   ##################
