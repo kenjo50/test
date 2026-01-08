@@ -47,13 +47,23 @@ startingBoard = [
   [Empty, Drone, Queen, Queen]
   ]
 
-buildPos :: String -> Pos 
-buildPos (c:rStr) = Pos c (read rStr) 
-buildPos _ = error "Invalid position format"
+buildPos :: String -> Pos
+buildPos [c, r]
+  | c >= 'a' && c <= 'd' && r >= '0' && r <= '7' = Pos c (digitToInt r)
+buildPos (c:rStr)
+  | c >= 'a' && c <= 'd'
+  , all isDigit rStr
+  , let n = read rStr
+  , n >= 0 && n <= 7
+  = Pos c n
+buildPos _ = Pos 'a' 0
 
 -- ##############################################################################
 -- ################## IMPLEMENT validateFEN :: String -> Bool ###################
 -- ################## - 1 Functional Point                   ####################
+-- ##############################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
 -- ##############################################################################
 
 validateFEN :: String -> Bool
@@ -74,7 +84,7 @@ validateFEN fen =
     isValidRow row = all isValidChar row && rowLength row == 4
 
     isValidChar :: Char -> Bool
-    isValidChar c = c `elem` "pdq123"
+    isValidChar c = c `elem` "pdq1234"
 
     rowLength :: String -> Int
     rowLength = sum . map charValue
@@ -88,6 +98,9 @@ validateFEN fen =
 -- ##############################################################################
 -- ################## IMPLEMENT buildBoard :: String -> Board ###################
 -- ################## - 1 Functional Point                   ####################
+-- ##############################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
 -- ##############################################################################
 
 buildBoard :: String -> Board
@@ -117,6 +130,9 @@ buildBoard fen = map parseRow (splitOn '/' fen)
 -- ##############################################################################
 -- ################## IMPLEMENT buildFEN :: Board -> String   ###################
 -- ################## - 1 Functional Point                   ####################
+-- ##############################################################################
+-- AI-GENERIERT: Die folgende Implementierung wurde mit Unterstützung von
+-- Claude Code (Anthropic) entwickelt.
 -- ##############################################################################
 
 buildFEN :: Board -> String
