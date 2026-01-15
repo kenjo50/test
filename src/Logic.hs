@@ -136,6 +136,23 @@ getAllDirectionMoves board pos =
       | p x = x : takeWhileInclusive p xs
       | otherwise = [x]
 
+-- Check if a specific piece type exists in a player's zone
+hasPieceTypeInZone :: Board -> Player -> Cell -> Bool
+hasPieceTypeInZone board player pieceType =
+  let positions = case player of
+        Top -> [Pos c r | c <- ['a'..'d'], r <- [4..7]]
+        Bottom -> [Pos c r | c <- ['a'..'d'], r <- [0..3]]
+      cells = map (getCell board) positions
+  in any (== Just pieceType) cells
+
+-- Check if combining is possible for a move (returns resulting piece type if combining)
+canCombine :: Board -> Player -> Cell -> Cell -> Maybe Cell
+canCombine board player movingPiece targetPiece
+  | movingPiece == Pawn && targetPiece == Pawn && not (hasPieceTypeInZone board player Drone) = Just Drone
+  | movingPiece == Pawn && targetPiece == Drone && not (hasPieceTypeInZone board player Queen) = Just Queen
+  | movingPiece == Drone && targetPiece == Pawn && not (hasPieceTypeInZone board player Queen) = Just Queen
+  | otherwise = Nothing
+
 -- ########################################################################################################
 -- ################## pawnMoves :: Board -> Player -> Pos -> Maybe Move -> [Move]        ##################
 -- ################## - 5 Functional Points                                              ##################
@@ -158,7 +175,13 @@ pawnMoves board player pos lastMove =
     isValidPawnTarget from to =
       case getCell board to of
         Just Empty -> True  -- Can move to empty in same zone or across canal
-        Just _ -> crossesCanal from to  -- Can capture only if crossing canal
+        Just targetPiece ->
+          if crossesCanal from to
+          then True  -- Can capture when crossing canal
+          else -- Same zone: check if combining is possible
+            case canCombine board player Pawn targetPiece of
+              Just _ -> True  -- Can combine
+              Nothing -> False
         Nothing -> False
 
 -- #######################################################################################################
@@ -183,7 +206,13 @@ droneMoves board player pos lastMove =
     isValidDroneMove from (Move _ to) =
       case getCell board to of
         Just Empty -> True  -- Can move to empty in same zone or across canal
-        Just _ -> crossesCanal from to  -- Can only capture if crossing canal
+        Just targetPiece ->
+          if crossesCanal from to
+          then True  -- Can capture when crossing canal
+          else -- Same zone: check if combining is possible
+            case canCombine board player Drone targetPiece of
+              Just _ -> True  -- Can combine
+              Nothing -> False
         Nothing -> False
 
 -- #######################################################################################################
@@ -222,12 +251,20 @@ queenMoves board player pos lastMove =
 makeMove :: Board -> Move -> (Board, Int)
 makeMove board (Move from to) =
   case (getCell board from, getCell board to) of
-    (Just piece, Just targetCell) ->
-      let points = cellValue targetCell
+    (Just movingPiece, Just targetCell) ->
+      -- Check if this is a combining move (same zone)
+      let fromPlayer = positionPlayer from
+          toPlayer = positionPlayer to
+          isSameZone = fromPlayer == toPlayer
+
+          (resultPiece, points) = case (isSameZone, canCombine board fromPlayer movingPiece targetCell) of
+            (True, Just combinedPiece) -> (combinedPiece, 0)  -- Combining: use combined piece, no points
+            _ -> (movingPiece, cellValue targetCell)  -- Normal move/capture: use moving piece, award points
+
           -- Remove piece from start position
           board1 = setCell board from Empty
-          -- Place piece at target position
-          board2 = setCell board1 to piece
+          -- Place result piece at target position
+          board2 = setCell board1 to resultPiece
       in (board2, points)
     _ -> (board, 0)
   where
